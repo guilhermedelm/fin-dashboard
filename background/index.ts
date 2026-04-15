@@ -1,5 +1,6 @@
-// background/index.ts  
+// background/index.ts
 
+/// <reference types="chrome" />
 
 import { Storage } from "@plasmohq/storage"
 
@@ -27,24 +28,20 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   await fetchAndSave()
 })
 
-fetchAndSave()
+//Atualizar ao mudar as ações também
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  // Verifica se a mudança ocorreu no storage "sync" e se a chave "my-stocks" foi alterada
+  if (areaName === "sync" && changes["my-stocks"]) {
 
-
-chrome.runtime.onInstalled.addListener(() => {
-    //console.log("addlistenercriado")
-  chrome.alarms.create("fetch-news", {
-    periodInMinutes: 1
-  })
+    fetchAndSave()
+  }
 })
 
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-    //console.log("alarm created")
-  if (alarm.name !== "fetch-news") return
-  await fetchAndSave()
-})
 
+//fetchAndSave()
 // Busca ao iniciar o service worker também
 fetchAndSave()
+
 
 async function fetchAndSave() {
   const syncresult = await chrome.storage.sync.get(["my-stocks", "last-links"])

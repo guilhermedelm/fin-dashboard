@@ -8,7 +8,7 @@ import "./style.css"
 
 
 
-function IntroPopup({ onFinish, stocks, setStocks,setNotifications }){
+function IntroPopup({ onFinish, stocks, setStocks,darkMode, setdarkMode }){
 
   const [inputValue,setInputValue] = useState("")
 
@@ -20,17 +20,23 @@ function IntroPopup({ onFinish, stocks, setStocks,setNotifications }){
   }
 
 
+
   const removeStock = (ticker: string) => {
     setStocks(stocks.filter((s) => s !== ticker))
   }
     return (
     <div className="flex flex-col items-center p-6 w-80 bg-slate-900 text-white text-center">
+        <button
+          onClick={() => setdarkMode(!darkMode)}
+          className="px-3 py-2 rounded bg-gray-200 dark:bg-slate-700 text-sm">
+          {darkMode ? "🌙 Dark" : "☀️ Light"}
+        </button>
       <div className="w-16 h-16 bg-blue-600 rounded-full mb-4 flex items-center justify-center">
         <span className="text-2xl">📈</span>
       </div>
       <h1 className="text-xl font-bold">FinDash UnB</h1>
       <p className="text-sm text-slate-400 mt-2">
-        O teu terminal financeiro pessoal. Notícias em tempo real e análise de mercado.
+        O seu terminal financeiro pessoal. Notícias em tempo real e análise de mercado.
       </p>
 
       {/* Input para adicionar stock */}
@@ -75,11 +81,11 @@ function IntroPopup({ onFinish, stocks, setStocks,setNotifications }){
   )
 }
 
-function DashboardPopup({ stocks, setHasSeenIntro, news, setNews }) {
-  const [data, setData] = useState("")
+function DashboardPopup({ stocks, setHasSeenIntro, news,darkMode,setdarkMode }) {
+  //const [data, setData] = useState("")
   const [loading, setLoading] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [newsByStock, setNewsByStock] = useState<Record<string, any[]>>({})
+  //const [searchQuery, setSearchQuery] = useState("")
+  //const [newsByStock, setNewsByStock] = useState<Record<string, any[]>>({})
   const [selectedStock, setSelectedStock] = useState<string>("")
   
 
@@ -91,7 +97,6 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, setNews }) {
   }
 
   //TERMINAR FUNCAO DE BUSCAR NOTICIAS, EXPLICACAO NO GEMINI E INTEGRAR COM O HTML
-
   useEffect(() => {
   chrome.storage.sync.get([ "my-stocks"], (result) => {
     console.log("RAW storage:", result)
@@ -99,12 +104,12 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, setNews }) {
   chrome.storage.local.get(["news-data"])
 }, [news])
 
-  console.log(news)
+
 
 
 
   return (
-    <div className="p-4 w-80 bg-slate-50 text-slate-900">
+    <div className="p-4 w-80 bg-slate-900 text-slate-900">
       <div className="flex justify-between items-center mb-4">
         <h2 className="font-bold text-lg">Mercado Hoje</h2>
         <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded">AO VIVO</span>
@@ -132,7 +137,7 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, setNews }) {
        {/* Lista de notícias da stock selecionada */}
         <div className="space-y-3">
           {loading && <p className="text-sm text-slate-400">Carregando...</p>}
-          {(news[selectedStock] ?? []).map((item , index) => (
+          {(news[selectedStock || stocks[0]] ?? []).map((item , index) => (
             <a
               key={index} // Agora está dentro da tag de abertura
               href={item.link}
@@ -156,20 +161,25 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, setNews }) {
 export default function IndexPopup() {
 
 
-
+  const [darkMode,setdarkMode] = useState(true)
   const [stocks,setStocks] = useStorage("my-stocks",[])
   const [news, setNews] = useStorage({
     key: "news-data",
     instance: new Storage({ area: "local" }) // 👈 especifica local
   }, {})
   // const [news,setNews] = useStorage("news-data",new Map())
-  const [lastNews,setLastnews] = useStorage("last-links",new Map())
+  //const [lastNews,setLastnews] = useStorage("last-links",new Map())
   const [ hasSeenIntro, setHasSeenIntro ] = useStorage("has-seen-intro", false)
 
+  //mecânica para aplicar o dark mode, adicionando ou removendo a classe "dark" do html
   useEffect(() => {
-    console.log("chrome objeto:", chrome)
-    console.log("chrome.alarms:", chrome?.alarms)
-  }, [])
+    if (darkMode){
+      document.documentElement.classList.add("dark")
+    }
+    else{
+      document.documentElement.classList.remove("dark") 
+    }
+  })
 
   if (!hasSeenIntro || stocks.length === 0){
     return <IntroPopup
@@ -177,6 +187,8 @@ export default function IndexPopup() {
              setStocks={setStocks}
              setNotifications = {setNews}
              onFinish={() => setHasSeenIntro(true)} 
+             darkMode={darkMode}
+             setdarkMode={setdarkMode}
              />
   }
   return <DashboardPopup 
@@ -184,6 +196,9 @@ export default function IndexPopup() {
             setHasSeenIntro = {setHasSeenIntro}
             news = {news}
             setNews={setNews}
+            darkMode={darkMode}
+            setdarkMode={setdarkMode}
+
            />
 }
 
