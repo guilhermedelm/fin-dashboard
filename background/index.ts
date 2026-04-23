@@ -10,6 +10,7 @@ const storage = new Storage({area:"local"})
 chrome.runtime.onInstalled.addListener(() => {
   //console.log("onInstalled disparou")
   chrome.alarms.create("fetch-news", { periodInMinutes: 1 })
+  chrome.alarms.create("fetch-prices", { periodInMinutes: 1 / 6 })
 })
 
 // ✅ Garante que o alarme existe toda vez que o SW acorda
@@ -21,11 +22,22 @@ chrome.alarms.get("fetch-news", (alarm) => {
     //console.log("Alarme já existe:", alarm)
   }
 })
+chrome.alarms.get("fetch-prices", (alarm) => {
+  if (!alarm) {
+    //console.log("Alarme de preços não existia, criando...")
+    chrome.alarms.create("fetch-prices", { periodInMinutes: 1 / 6 })
+  } else {
+    //console.log("Alarme de preços já existe:", alarm)
+  }
+})
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   //console.log("Alarme disparou:", alarm.name)
-  if (alarm.name !== "fetch-news") return
-  await fetchAndSave()
+  if (alarm.name === "fetch-news") 
+    await fetchAndSave()
+  if (alarm.name === "fetch-prices")
+    await fetchAndSavePrices()
+  else return
 })
 
 //Atualizar ao mudar as ações também
@@ -42,6 +54,14 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 // Busca ao iniciar o service worker também
 fetchAndSave()
 
+
+
+
+
+
+
+
+async function fetchAndSavePrices() {console.log("fetchAndSavePrices disparou")}
 
 async function fetchAndSave() {
   const syncresult = await chrome.storage.sync.get(["my-stocks", "last-links"])
