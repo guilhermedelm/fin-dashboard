@@ -11,7 +11,7 @@ import "./style.css"
 interface IntroPopupProps {
   onFinish: () => void
   stocks: string[]
-  setStocks: React.Dispatch<React.SetStateAction<string[]>>
+  setStocks: (value: string[]) => Promise<void>;
   darkMode: boolean
   setdarkMode: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -109,19 +109,26 @@ function IntroPopup({ onFinish, stocks, setStocks, darkMode, setdarkMode }: Intr
   )
 }
 
+  interface NewsArticles {
+    title: string
+    link: string
+    description: string
+    pubDate: string
+    timestamp: number
+  }
+
 interface DashboardPopupProps {
   stocks: string[]
-  setHasSeenIntro: React.Dispatch<React.SetStateAction<boolean>>
-  news: any[]
+  setHasSeenIntro: (value: boolean | ((v?: boolean, isHydrated?: boolean) => boolean)) => Promise<void>;
+  news: Record<string,NewsArticles[]>
+  setNews: React.Dispatch<React.SetStateAction<Record<string,NewsArticles[]>>>
   darkMode: boolean
   setdarkMode: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }: DashboardPopupProps) {
-  //const [data, setData] = useState("")
+ 
   const [loading, setLoading] = useState(false)
-  //const [searchQuery, setSearchQuery] = useState("")
-  //const [newsByStock, setNewsByStock] = useState<Record<string, any[]>>({})
   const [selectedStock, setSelectedStock] = useState<string>("")
   
 
@@ -132,11 +139,11 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
 
   //TERMINAR FUNCAO DE BUSCAR NOTICIAS, EXPLICACAO NO GEMINI E INTEGRAR COM O HTML
   useEffect(() => {
-  chrome.storage.sync.get([ "my-stocks"], (result) => {
-    console.log("RAW storage:", result)
-  })
-  chrome.storage.local.get(["news-data"])
-}, [news])
+    chrome.storage.sync.get([ "my-stocks"], (result) => {
+      console.log("RAW storage:", result)
+    })
+    chrome.storage.local.get(["news-data"])
+  }, [news])
 
 
 
@@ -194,7 +201,7 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
        {/* Lista de notícias da stock selecionada */}
         <div className="space-y-3">
           {loading && <p className="text-sm text-slate-400 dark:text-slate-300">Carregando...</p>}
-          {(news[selectedStock || stocks[0]] ?? []).map((item , index) => (
+          {(news[selectedStock || stocks[0]] ?? []).map((item , index:number) => (
             <a
               key={index} // Agora está dentro da tag de abertura
               href={item.link}
@@ -218,12 +225,14 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
 export default function IndexPopup() {
 
 
+
   const [darkMode,setdarkMode] = useState(true)
-  const [stocks,setStocks] = useStorage("my-stocks",[])
+  const [stocks,setStocks] = useStorage<string[]>("my-stocks",[])
   const [news, setNews] = useStorage({
     key: "news-data",
     instance: new Storage({ area: "local" }) // 👈 especifica local
   }, {})
+
 
   const [ hasSeenIntro, setHasSeenIntro ] = useStorage("has-seen-intro", false)
 
@@ -241,7 +250,6 @@ export default function IndexPopup() {
     return <IntroPopup
              stocks = {stocks}
              setStocks={setStocks}
-             setNotifications = {setNews}
              onFinish={() => setHasSeenIntro(true)} 
              darkMode={darkMode}
              setdarkMode={setdarkMode}

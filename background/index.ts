@@ -129,7 +129,6 @@ async function fetchAndSave() {
 
       savedNews[stock] = freshNews
 
-      console.log()
 
 
     } catch (error) {
