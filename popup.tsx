@@ -201,7 +201,7 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
        {/* Lista de notícias da stock selecionada */}
         <div className="space-y-3">
           {loading && <p className="text-sm text-slate-400 dark:text-slate-300">Carregando...</p>}
-          {(news[selectedStock || stocks[0]] ?? []).map((item , index:number) => (
+          {(news[selectedStock] ?? Object.values(news).flat().sort((a,b) => b.timestamp - a.timestamp)).map((item , index:number) => (
             <a
               key={index} // Agora está dentro da tag de abertura
               href={item.link}
@@ -232,7 +232,6 @@ export default function IndexPopup() {
     key: "news-data",
     instance: new Storage({ area: "local" }) // 👈 especifica local
   }, {})
-
 
   const [ hasSeenIntro, setHasSeenIntro ] = useStorage("has-seen-intro", false)
 

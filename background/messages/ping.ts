@@ -7,7 +7,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
 
     chrome.notifications.create({
         type: "basic",
-        iconUrl: chrome.runtime.getURL("icon16.plasmo.9f44d99c.png"),
+        iconUrl: chrome.runtime.getURL("icon.png"),
         title: title,
         message: message
     })

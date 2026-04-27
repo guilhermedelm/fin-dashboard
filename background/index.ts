@@ -1,4 +1,4 @@
-// background/index.ts
+
 
 /// <reference types="chrome" />
 
@@ -8,7 +8,7 @@ const storage = new Storage({area:"local"})
 
 
 chrome.runtime.onInstalled.addListener(() => {
-  //console.log("onInstalled disparou")
+  
   chrome.alarms.create("fetch-news", { periodInMinutes: 1 })
   chrome.alarms.create("fetch-prices", { periodInMinutes: 1 / 6 })
 })
@@ -16,27 +16,27 @@ chrome.runtime.onInstalled.addListener(() => {
 // ✅ Garante que o alarme existe toda vez que o SW acorda
 chrome.alarms.get("fetch-news", (alarm) => {
   if (!alarm) {
-    //console.log("Alarme não existia, criando...")
+  
     chrome.alarms.create("fetch-news", { periodInMinutes: 1 })
   } else {
-    //console.log("Alarme já existe:", alarm)
+   
   }
 })
 chrome.alarms.get("fetch-prices", (alarm) => {
   if (!alarm) {
-    //console.log("Alarme de preços não existia, criando...")
+   
     chrome.alarms.create("fetch-prices", { periodInMinutes: 1 / 6 })
   } else {
-    //console.log("Alarme de preços já existe:", alarm)
+   
   }
 })
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  //console.log("Alarme disparou:", alarm.name)
+  
   if (alarm.name === "fetch-news") 
     await fetchAndSave()
-  if (alarm.name === "fetch-prices")
-    await fetchAndSavePrices()
+  //if (alarm.name === "fetch-prices")
+    //await fetchAndSavePrices()
   else return
 })
 
@@ -49,26 +49,17 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 })
 
-
-//fetchAndSave()
 // Busca ao iniciar o service worker também
 fetchAndSave()
 
-
-
-
-
-
-
-
-async function fetchAndSavePrices() {console.log("fetchAndSavePrices disparou")}
+async function fetchAndSavePrices() {return}
 
 async function fetchAndSave() {
   const syncresult = await chrome.storage.sync.get(["my-stocks", "last-links"])
   const localresult = await chrome.storage.local.get(["news-data"])
   //const stocks: string[] = result["my-stocks"] ?? []
   //const savedNews: Record<string, any[]> = result["notifications-by-news"] ?? {}
-  //console.log("RAW notifications-by-news:", result["notifications-by-news"])
+
   
   let stocks: string[] = []
   try {
@@ -77,7 +68,7 @@ async function fetchAndSave() {
   } catch {
     stocks = []
   }
-
+  
   let savedNews: Record<string, any[]> = {}
   try {
     const raw = localresult["news-data"]
@@ -85,23 +76,23 @@ async function fetchAndSave() {
   } catch {
     savedNews = {}
   }
-  console.log("savedNews após parse:", JSON.stringify(savedNews))
+
 
   let lastLinks:Record<string,string> = {}
   try{
     const raw = syncresult["last-links"]
-    console.log("RAW last-links:", raw, "tipo:", typeof raw)  // 👈
+
     lastLinks = typeof raw === "string" ? JSON.parse(raw) : raw?? {}
-    console.log("lastLinks após parse:", lastLinks)  // 👈
+
   } catch {
     lastLinks = {}
   }
-  //console.log("stocks:", stocks)
+
   if (stocks.length === 0) return
 
   for (const stock of stocks) {
     try {
-        //console.log(stock)
+
       const response = await fetch(
         `https://news.google.com/rss/search?q=${stock}&hl=pt-BR&gl=BR&ceid=BR:pt-150`
       )
@@ -111,15 +102,17 @@ async function fetchAndSave() {
       // Verifica se há notícia nova
       const previousLink = lastLinks[stock]
       
-      console.log(`previous link : ${previousLink}`)
-      console.log(`novo link do fetch : ${freshNews[0].link}`)
+      if (!freshNews || freshNews.length === 0){
+        console.log("funcao nao existe")
+        return
+        
+      }
 
       if (previousLink !== freshNews[0].link ) {
-        //console.log(`message passed : ${savedNews[stock]}`)
-        //console.log()
+        console.log("notificacao lancada")
         chrome.notifications.create({
           type: "basic",
-          iconUrl: chrome.runtime.getURL("icon16.plasmo.9f44d99c.png"),
+          iconUrl: chrome.runtime.getURL("icon128.plasmo.c11f39af.png"),
           title: stock,
           message: freshNews[0].title   
         })
@@ -137,7 +130,6 @@ async function fetchAndSave() {
   }
 
   // Salva tudo de uma vez no storage
-  //await chrome.storage.local.set({ "news-data": savedNews })
   await storage.set ("news-data", savedNews)
 }
 
@@ -160,6 +152,7 @@ function parseRSS(xml: string) {
       timestamp: new Date(pubDate).getTime()
     }
   })
+
 
   return news.sort((a, b) => b.timestamp - a.timestamp).slice(0, 5)
 }
