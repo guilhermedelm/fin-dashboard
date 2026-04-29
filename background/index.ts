@@ -76,8 +76,11 @@ async function fetchAndSave() {
   } catch {
     savedNews = {}
   }
-
-
+  for (const key in savedNews) {
+    if (!stocks.includes(key)) {
+      delete savedNews[key]
+    }
+  }
   let lastLinks:Record<string,string> = {}
   try{
     const raw = syncresult["last-links"]
@@ -103,16 +106,14 @@ async function fetchAndSave() {
       const previousLink = lastLinks[stock]
       
       if (!freshNews || freshNews.length === 0){
-        console.log("funcao nao existe")
         return
         
       }
 
       if (previousLink !== freshNews[0].link ) {
-        console.log("notificacao lancada")
         chrome.notifications.create({
           type: "basic",
-          iconUrl: chrome.runtime.getURL("icon128.plasmo.c11f39af.png"),
+          iconUrl: chrome.runtime.getURL("./public/icon.png"),
           title: stock,
           message: freshNews[0].title   
         })
@@ -128,7 +129,6 @@ async function fetchAndSave() {
       console.error(`Erro ao buscar notícias de ${stock}:`, error)
     }
   }
-
   // Salva tudo de uma vez no storage
   await storage.set ("news-data", savedNews)
 }

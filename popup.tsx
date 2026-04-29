@@ -32,81 +32,112 @@ function IntroPopup({ onFinish, stocks, setStocks, darkMode, setdarkMode }: Intr
   const removeStock = (ticker: string) => {
     setStocks(stocks.filter((s) => s !== ticker))
   }
-    return (
-    <div className="flex flex-col items-center p-6 w-80 bg-slate-900 text-slate-300 text-center">
-      <div className="flex justify-end w-full mb-2">
-        <button
-          type="button"
-          onClick={() => setdarkMode(!darkMode)}
-          className="font-medium text-foreground rounded-full hover:bg-surface-hover focus:outline-hidden focus:bg-surface-focus"
-        >
-          <span className="group inline-flex shrink-0 justify-center items-center size-9">
-            {darkMode ? (
-              // Ícone Sol (modo claro)
-              <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="4"/>
-                <path d="M12 2v2"/><path d="M12 20v2"/>
-                <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
-                <path d="M2 12h2"/><path d="M20 12h2"/>
-                <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-              </svg>
-            ) : (
-              // Ícone Lua (modo escuro)
-              <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-              </svg>
-            )}
-          </span>
-        </button>
+return (
+  <div className="p-6 w-80 bg-slate-300 text-slate-900 dark:bg-slate-900 dark:text-slate-300">
+    {/* Header: badge + toggle dark mode */}
+    <div className="flex justify-between items-center mb-5">
+      <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded font-semibold tracking-wide">
+        BEM-VINDO
+      </span>
+      <button
+        type="button"
+        onClick={() => setdarkMode(!darkMode)}
+        aria-label={darkMode ? "Ativar modo claro" : "Ativar modo escuro"}
+        title={darkMode ? "Modo claro" : "Modo escuro"}
+        className="font-medium rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+      >
+        <span className="group inline-flex shrink-0 justify-center items-center size-9">
+          {darkMode ? (
+            <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2"/><path d="M12 20v2"/>
+              <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+              <path d="M2 12h2"/><path d="M20 12h2"/>
+              <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </svg>
+          ) : (
+            <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+          )}
+        </span>
+      </button>
+    </div>
+
+    {/* Branding */}
+    <div className="flex flex-col items-center text-center mb-6">
+      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl mb-3 flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <span className="text-3xl">📈</span>
       </div>
-      <div className="w-16 h-16 bg-blue-600 rounded-full mb-4 flex items-center justify-center">
-        <span className="text-2xl">📈</span>
-      </div>
-      <h1 className="text-xl font-bold">FinDash UnB</h1>
-      <p className="text-sm text-slate-400 mt-2">
+      <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">FinDash UnB</h1>
+      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed px-2">
         O seu terminal financeiro pessoal. Notícias em tempo real e análise de mercado.
       </p>
+    </div>
 
-      {/* Input para adicionar stock */}
-      <div className="flex gap-2 mt-4 w-full">
+    {/* Seção: adicionar ativos */}
+    <div className="mb-5">
+      <label
+        htmlFor="ticker-input"
+        className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2"
+      >
+        Acompanhar ativos
+      </label>
+      <div className="flex gap-2">
         <input
+          id="ticker-input"
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addStock()}  
+          onKeyDown={(e) => e.key === "Enter" && addStock()}
           placeholder="Ex: PETR4, AAPL..."
-          className="flex-1 px-3 py-2 rounded-lg bg-slate-300 text-slate-700 dark:bg-slate-700 dark:text-slate-300 text-sm outline-none"
+          className="flex-1 px-3 py-2 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 text-sm border border-slate-200 dark:border-slate-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
         />
         <button
           onClick={addStock}
-          className="px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-sm font-semibold transition-all">
+          aria-label="Adicionar ativo"
+          className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-sm shadow-blue-500/20 transition-all"
+        >
           +
         </button>
       </div>
 
       {/* Lista de stocks adicionados */}
-      <div className="flex flex-wrap gap-2 mt-3 w-full">
-        {stocks.map((ticker) => (
-          <span
-            key={ticker}
-            className="flex items-center gap-1 px-2 py-1 bg-slate-700 rounded-full text-xs">
-            {ticker}
-            <button
-              onClick={() => removeStock(ticker)}
-              className="text-slate-400 hover:text-red-400 transition-all">
-              ✕
-            </button>
-          </span>
-        ))}
-      </div>
-
-      <button
-        onClick={onFinish}
-        className="mt-6 w-full py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition-all">
-        Começar agora
-      </button>
+      {stocks.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {stocks.map((ticker) => (
+            <span
+              key={ticker}
+              className="flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full text-xs font-medium text-slate-700 dark:text-slate-200"
+            >
+              {ticker}
+              <button
+                onClick={() => removeStock(ticker)}
+                aria-label={`Remover ${ticker}`}
+                className="flex items-center justify-center size-4 rounded-full text-slate-400 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-500/20 transition-all"
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[11px] text-slate-500 dark:text-slate-500 mt-2 italic">
+          Nenhum ativo adicionado ainda.
+        </p>
+      )}
     </div>
-  )
+
+    {/* CTA principal */}
+    <button
+      onClick={onFinish}
+      className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm shadow-md shadow-blue-500/20 transition-all"
+    >
+      Começar agora →
+    </button>
+  </div>
+)
+
 }
 
   interface NewsArticles {
@@ -140,7 +171,7 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
   //TERMINAR FUNCAO DE BUSCAR NOTICIAS, EXPLICACAO NO GEMINI E INTEGRAR COM O HTML
   useEffect(() => {
     chrome.storage.sync.get([ "my-stocks"], (result) => {
-      console.log("RAW storage:", result)
+      //console.log("RAW storage:", result)
     })
     chrome.storage.local.get(["news-data"])
   }, [news])
@@ -201,7 +232,16 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
        {/* Lista de notícias da stock selecionada */}
         <div className="space-y-3">
           {loading && <p className="text-sm text-slate-400 dark:text-slate-300">Carregando...</p>}
-          {(news[selectedStock] ?? Object.values(news).flat().sort((a,b) => b.timestamp - a.timestamp)).map((item , index:number) => (
+          {(news[selectedStock] ?? []).length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <p className="text-sm text-slate-400">Nenhuma notícia encontrada</p>
+              </div>
+
+              
+            ) : (
+          
+          
+          (news[selectedStock] ?? []).map((item , index:number) => (
             <a
               key={index} // Agora está dentro da tag de abertura
               href={item.link}
@@ -214,7 +254,7 @@ function DashboardPopup({ stocks, setHasSeenIntro, news, darkMode, setdarkMode }
               <p className="text-[10px] text-slate-400 mt-1">
                 {new Date(item.pubDate).toLocaleDateString("pt-BR")}
               </p>
-            </a>
+            </a>)
           ))}
  
             </div>
